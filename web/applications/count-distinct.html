@@ -1,0 +1,408 @@
+<html>
+<head>
+  <link rel="stylesheet" href="../plad.css">
+  <script type="text/javascript" src="../plas.js"></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML' type='text/javascript'></script>
+</head>
+
+<body>
+<h1>Cap Sets</h1>
+
+<p>
+<i>
+Why it's difficult to avoid arithmetic progressions.
+</i>
+
+<!-- more -->
+
+<p>
+The following result was established in 2016:
+
+<p class="result">
+Let $A$ be a subset of $\mathbb{F}_3^n$
+  containing no three-term arithmetic progression.
+Then, $|A|=o(2.8^n)$.
+</p>
+
+<p>
+This has been described as a
+  <a href="https://www.quantamagazine.org/20160531-set-proof-stuns-mathematicians/">big breakthrough</a>.
+Yet, the proof is simple enough to fit in 2&nbsp;pages.
+
+<p>
+The elements of $\mathbb{F}_3^n$ are vectors with $n$&nbsp;components,
+  each component being an integer modulo&nbsp;3.
+Vectors $a_1,a_2,a_3$ are said to form a three-term arithmetic progression
+  when $a_2-a_1=a_3-a_2$.
+Because we are working modulo $3$, this is equivalent to $a_1+a_2+a_3=0$.
+Thus, we can rephrase the result as follows.
+
+<p class="result">
+Let $A$ be a subset of $\mathbb{F}_3^n$
+  such that $a_1+a_2+a_3\ne0$ for all distinct $a_1,a_2,a_3\in A$.
+Then, $|A|=o(2.8^n)$.
+</p>
+
+<p>
+If we were to not require $a_1,a_2,a_3$ to be distinct,
+  then the hypothesis would essentially be just &lsquo;false&rsquo;,
+  because any nonempty set contains a trivial three-term arithmetic progression
+    if we are allowed to pick the same element three times.
+An equivalent formulation is to say
+  &lsquo;not all equal&rsquo; instead of &lsquo;distinct&rsquo;,
+  because $a+a+b \ne 0$ if $a \ne b$.
+
+
+<p class="result">
+Let $A$ be a subset of $\mathbb{F}_3^n$
+  such that $a_1+a_2+a_3\ne0$ for $a_1,a_2,a_3\in A$ not all equal.
+Then, $|A|=o(2.8^n)$.
+</p>
+
+<p>
+The overall idea is to find lower and upper bounds for the dimension
+  of some vector space of polynomials.
+We consider the set $M_n^d$ of monomials over $n$ variables
+  that have total degree $\le d$ and all powers from $\{0,1,2\}$.
+The restriction on powers is not serious
+  because $x^3=x$ by Fermat's little theorem.
+(One may think that $x^2=1$, but that is true only for nonzero $x$.)
+Let us write $S_n^d$ for the vector space of polynomials
+  written with monomials from $M_n^d$.
+We have that $\dim S_n^d=|M_n^d|$;
+  let us denote this quantity by $m_d$.
+Observe that $m_{\infty}=3^n$;
+  indeed, if we allow any total degree,
+  then polynomials can represent any function $\mathbb{F}_3^n\to\mathbb{F}_3$,
+  by combining indicator polynomials
+  $I_a(x)\stackrel{\text{def}}=\prod_{k=1}^n \bigl(1- (x_k-a_k)^2\bigr)$.
+<!--
+These indicator polynomials form an orthonormal basis for $S_n^{\infty}$,
+  with the degenerate inner product
+  $P \cdot Q \stackrel{\text{def}}= \sum_{a\in\mathbb{F}_3^n} P(a)Q(a)$.
+-->
+
+<p>
+We define two subsets of $\mathbb{F}_3^n$:
+$$\begin{align}
+  X &amp;\stackrel{\text{def}}=
+  \{\,a_1+a_2 \mid\text{$a_1,a_2\in A$ distinct}\,\}
+\\
+  Y &amp;\stackrel{\text{def}}=
+  \{\,-a_3 \mid a_3\in A\,\}
+\end{align}$$
+These sets are disjoint, if $A$ satisfies our hypothesis.
+We will consider the subspace $V$ of the polynomials that vanish outside $Y$.
+We will derive a lower bound on $\dim V$,
+  by simply counting points outside $Y$;
+and we will derive an upper bound on $\dim V$,
+  using a lemma which says, roughly, that
+  &lsquo;any polynomial that is zero on all of $X$ is zero on much of $Y$&rsquo;.
+The reasoning will work for an arbitrary $d$;
+  when comparing the upper with the lower bound, we shall pick for $d$ a convenient value.
+
+
+<p>
+The bounds we aim to prove are the following:
+$$
+  m_d - 3^n + |A| \le \dim V \le 2 m_{d/2}
+$$
+
+<p>
+Let us first see how we use these bounds,
+  and we will soon return to how to prove them.
+By the correspondence $x^k \leftrightarrow x^{2-k}$,
+  we see that monomials of total degree $\le d$
+  are in a one-to-one correspondence with monomials of total degree $\ge 2n-d$.
+Thus, $m_d$ equals $3^n-m_{2n-d-1}$.
+It follows that $|A| \le 2 m_{d/2} + m_{2n-d-1}$.
+If we pick $d$ such that $d/2=2n-d-1$, we get $|A| \le 3 m_{(2n-1)/3} \le 3m_{2n/3}$.
+Finally, one can show that $m_{2n/3}=o(2.8^n)$.
+
+<div class="digression">
+<div class="digression-head">
+Why is $m_{2n/3}=o(2.8^n)$?
+<a href="#" onclick="return toggleShow('capsets-bound-on-m')">[toggle answer]</a>
+</div>
+<div class="digression-body" id="capsets-bound-on-m">
+<p>
+We can use a Chernoff bound.
+Several useful inequalities involving probabilities have the form
+$$
+  \Pr(X\in S) \le \mathbb{E}f(X)
+$$
+where $X$ is a random variable, and $f$ is a function such that $f(x)\ge [x \in S]$.
+The notation $[\phi]$ stands for $1$ when $\phi$ holds, and $0$ otherwise.
+It is very easy to prove this:
+$$\begin{align}
+  \Pr(X \in S)
+  &amp;
+  = \sum_{x} [x \in S] \Pr(X=x)
+\\
+  &amp;\le \sum_x f(x) \Pr(X=x)
+  = \mathbb{E} f(X)
+\end{align}$$
+We pick $S \stackrel{\text{def}}= \{\,x\mid x\le 0\,\}$
+  and $f(x) \stackrel{\text{def}}= e^{-\alpha x}$.
+This tells us that $\Pr(X \le 0) \le \mathbb{E} e^{-\alpha X}$ for any $\alpha\ge 0$.
+Enough background &ndash; let us move back to $m_{2n/3}$.
+
+<p>
+The number $m_{2n/3}$ says in how many ways we can choose $n$ numbers from the set
+  $\{0,1,2\}$ such that their sum is $\le 2n/3$.
+In other words, $m_{2n/3} = 3^n \cdot \Pr(Y_1+\cdots +Y_n\le 2n/3)$,
+  where $Y_1,\ldots,Y_n$ are i.i.d. random variables taking values (uniformly) in
+  $\{0,1,2\}$.
+If we define $X_k \stackrel{\text{def}}= Y_k-2/3$ and we use the inequality from above, we can calculate
+$$\begin{align}
+\Pr\biggl(\sum_{i=1}^n Y_i \le \frac{2n}{3}\biggr)
+  &amp;
+  = \Pr\biggl(\sum_{i=1}^n X_i \le 0\biggr)
+  \\&amp;\le
+  \mathbb{E} \biggl(e^{-\alpha\sum_{i=1}^n X_i}\biggr)
+  =
+  \mathbb{E} \biggl( \prod_{i=1}^n e^{-\alpha X_i}\biggr)
+  =
+  \prod_{i=1}^n \mathbb{E} e^{-\alpha X_i}
+  \\&amp;=
+  \biggl( \frac{e^{-\frac{4}{3}\alpha}+e^{-\frac{1}{3}\alpha}+e^{\frac{2}{3}\alpha}}{3} \biggr)^n
+\end{align}$$
+Now we optimize for $\alpha\ge0$, and we get that $m_{2n/3} \lt 2.75510462^n$.
+</div>
+</div>
+
+<p>
+Now let us get back to proving the bounds.
+
+<p>
+The lower bound is easy.
+The definition of $V$ is
+  $\{\,P\in S_n^d \mid\text{$P(a)=0$ for $a\in \mathbb{F}_3^n\setminus Y$}\,\}$.
+The dimension of $S_n^d$ is $m_d$,
+  and each of the $|\mathbb{F}_3^n\setminus Y|$ constraints
+  reduces the dimension by at most $1$.
+Done.
+
+<div class="digression">
+<div class="digression-head">
+Why does adding a constraint $P(a)=0$
+reduce the dimension by at most $1$?
+<a href="#" onclick="return toggleShow('capsets-decrease-dim')">
+[toggle answer]</a>
+</div>
+<div class="digression-body" id="capsets-decrease-dim">
+<p>
+Consider a basis $P_1,\ldots,P_k$.
+Without loss of generality, we can assume that $P_i(a)\in\{0,1\}$ for all $i$.
+We partition $P_1,\ldots,P_k$ based on whether $P_i(a)$ is $0$ or $1$:
+  for $Q_1,\ldots,Q_{k_1}$, we have $Q_i(a)=0$ for all $i$;
+  for $R_1,\ldots,R_{k_2}$, we have $R_i(a)=1$ for all $i$;
+  and $k=k_1+k_2$.
+If $k_2=0$, then the dimension is not reduced at all,
+  as witnessed by the initial basis $P_1,\ldots,P_k$.
+If $k_2\gt 0$, then the dimension is reduced by $1$,
+  as witnessed by the basis formed by
+    $Q_1,\ldots,Q_{k_1}$
+    together with $R_2-R_1,R_3-R_1,\ldots,R_{k_2}-R_1$.
+[This is an instance of the <a href="https://en.wikipedia.org/wiki/Rank%E2%80%93nullity_theorem">rank-nullity theorem</a>.]
+</div>
+</div>
+
+<p>
+The upper bound isn't quite so easy.
+My understanding is that the upper bound is the tear that led to the breakthrough.
+We'll do it in two steps, corresponding to these inequalities:
+$$
+  \dim V \le |\Sigma| \le 2 m_{d/2}
+$$
+where $\Sigma$ is a maximal support of a polynomial in&nbsp;$V$.
+
+<p>
+For the first inequality, we will show the contrapositive:
+  if a polynomial $P \in V$ has support $\Sigma$ with $|\Sigma|\lt\dim V$,
+  then $\Sigma$ is not maximal.
+We do this by finding another polynomial $Q \in V$
+  whose support is nonempty and disjoint from $\Sigma$.
+The support of $P+Q$ will be a strict superset of $\Sigma$.
+
+<div class="digression">
+<div class="digression-head">
+Why does $Q$ exist?
+<a href="#" onclick="return toggleShow('capsets-q-exists')">[toggle answer]</a>
+</div>
+<div class="digression-body" id="capsets-q-exists">
+<p>
+We reuse the argument from the previous gray box.
+We start with space $V$,
+  and each additional constraint $Q(a)=0$ reduces the dimension by at most $1$.
+Thus, the space $\{\,Q\in V\mid\text{$Q(a)=0$ for $a\in\Sigma$}\,\}$
+  has positive dimension.
+</div>
+</div>
+
+<p>
+For the second inequality,
+  we show that <i>any</i> $P\in V$ has a support of size $\le 2 m_{d/2}$.
+I'll start with an example.
+Take $P({\bf x})=x_1 x_2 x_3+x_1^2$.
+This is an element of $S_3^3$ because
+  we use $3$ variables and the total degree of each monomial is $\le 3$.
+The polynomial $P({\bf x}+{\bf y})$ will have monomials
+  that use both $x$-variables and $y$-variables,
+  but still have total degree $\le 3$:
+$$\begin{align}
+P({\bf x}+{\bf y})
+  =
+\left\{
+\begin{aligned}
+&amp;x_{1} x_{2} x_{3} + x_{2} x_{3} y_{1} + x_{1} x_{3} y_{2} + x_{3} y_{1} y_{2}
+\\
+&amp;+ x_{1} x_{2} y_{3} + x_{2} y_{1} y_{3} + x_{1} y_{2} y_{3} + y_{1} y_{2} y_{3}
+\\
+&amp;+ x_{1}^{2} + 2 \, x_{1} y_{1} + y_{1}^{2}
+\end{aligned}
+\right.
+\end{align}$$
+
+<p>
+For each monomial,
+  in addition to the total degree (the sum of all powers),
+  we can define
+  an $x$-degree (the sum of all powers on $x$-variables), and
+  a $y$-degree (the sum of all powers on $y$-variables).
+Since the total degree is $\le3$,
+  it follows that the $x$-degree is $\le3/2$ or the $y$-degree is $\le3/2$ (or both).
+Let's put on the first line all those monomials with $x$-degree $\le3/2$,
+  and on the second line the rest:
+
+$$
+  P({\bf x}+{\bf y}) =
+  \left\{
+  \begin{aligned}
+  &amp;
+  x_{3} y_{1} y_{2}
+  + x_{2} y_{1} y_{3}
+  + x_{1} y_{2} y_{3}
+  + y_{1} y_{2} y_{3}
+  + 2 x_{1} y_{1}
+  + y_{1}^{2}
+\\
+  &amp;
+  + x_{1} x_{2} x_{3}
+  + x_{2} x_{3} y_{1}
+  + x_{1} x_{3} y_{2}
+  + x_{1} x_{2} y_{3}
+  + x_{1}^{2}
+  \end{aligned}
+  \right.
+$$
+
+<p>
+Now we group monomials on the first line by $x$,
+  and we group monomials on the second line by $y$.
+
+$$
+  P({\bf x}+{\bf y}) =
+  \left\{
+  \begin{aligned}
+  &amp;
+  x_{3} y_{1} y_{2}
+  + x_{2} y_{1} y_{3}
+  + x_{1} (y_{2} y_{3} + 2 y_1)
+  + (y_{1} y_{2} y_{3} + y_{1}^{2})
+  \\
+  &amp;
+  + (x_{1} x_{2} x_{3} + x_1^2)
+  + x_{2} x_{3} y_{1}
+  + x_{1} x_{3} y_{2}
+  + x_{1} x_{2} y_{3}
+  \end{aligned}
+  \right.
+$$
+
+<p>
+Introducing some new notation, we can write the above as
+
+$$
+  P({\bf x}+{\bf y}) =
+  \left\{
+  \begin{aligned}
+  &amp;
+  x_{3} F_{x_3}({\bf y})
+  + x_{2} F_{x_2}({\bf y})
+  + x_{1} F_{x_1}({\bf y})
+  + F_1({\bf y})
+  \\
+  &amp;
+  + G_1({\bf x})
+  + y_{1} G_{y_1}({\bf x})
+  + y_{2} G_{y_2}({\bf x})
+  + y_{3} G_{y_3}({\bf x})
+  \end{aligned}
+  \right.
+$$
+
+<p>
+Finally, we instantiate this equality for all $({\bf x},{\bf y})\in A^2$.
+For an example, let's say $A=\{100,020\}$,
+  where $100$ is a compact notation for the point $(1,0,0)\in\mathbb{F}_3^3$.
+Then,
+
+$$\begin{align}
+\begin{bmatrix}
+P(100+100) &amp; P(100+020) \\
+P(020+100) &amp; P(020+020)
+\end{bmatrix}
+=
+&amp;\begin{bmatrix} 0 \\ 0 \end{bmatrix}_{x_3}
+\begin{bmatrix} F_{x_3}(100) &amp; F_{x_3}(020) \end{bmatrix}\\
+&amp;+
+\begin{bmatrix} 0 \\ 2 \end{bmatrix}_{x_2}
+\begin{bmatrix} F_{x_2}(100) &amp; F_{x_2}(020) \end{bmatrix}
++ \cdots
+\end{align}$$
+
+<p>
+The matrix corresponding to the term $x_3 F_{x_3}({\bf y})$ was factored
+  into a column vector corresponding to $x_3$,
+  and a row vector corresponding to $F_{x_3}({\bf y})$.
+
+<p>
+Of course, we can do the same manipulations for any polynomial $P\in S_n^d$,
+  obtaining
+$$\begin{align}
+  P({\bf x}+{\bf y})
+  =
+  \sum_{m\in M_n^{d/2}} m({\bf x}) F_m({\bf y})
+  +
+  \sum_{m\in M_n^{d/2}} m({\bf y}) G_m({\bf x})
+\end{align}
+$$
+
+<p>
+and we can instantiate this equation for all $({\bf x},{\bf y})\in A^2$
+  to obtain a matrix identity.
+If $P\in V$, which implies that $P$ vanishes on $X$, then its matrix is diagonal.
+On the other hand,
+  the matrix of each term $m({\bf x})F_m({\bf y})$ has rank&nbsp;1,
+  and similarly the matrix of each term $m({\bf y})G_m({\bf x})$.
+<a href="https://math.stackexchange.com/q/59459/512">
+  Because rank is subadditive</a>,
+  the matrix of a $P \in V$ has rank $\le 2 m_{d/2}$,
+  which means that it has $\le2m_{d/2}$ nonzero elements on the diagonal.
+In other words,
+  $P(-a) = P(a + a)\ne 0$ for $\le 2 m_{d/2}$ points $a\in A$.
+
+<p>
+This concludes the proof.
+
+<p>
+This post follows <a href="https://arxiv.org/abs/1605.09223">[Ellenberg, Gijswijt, <i>On large subsets of $F_q^n$ with no three-term arithmetic progression</i>]</a>, which presents a slightly more general result, for $\mathbb{F}_q^n$ rather than $\mathbb{F}_3^n$.
+
+<p>
+[Stefan Kiefer provided feedback on several drafts of this post. Thanks!]
+</body>
+</html>
+<!--
+vim:spell:spelllang=en_us:wrap:linebreak:
+-->
