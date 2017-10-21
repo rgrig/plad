@@ -6,14 +6,35 @@
 </head>
 
 <body>
-<h1>Count Distinct</h1>
+<h1>Pagerank</h1>
 
 <p>
-You want to count how many distinct visitors your website has next year.
-Of course, you expect your website to be extremely popular.
-You're thinking you'll have, say, 1000 visitors every second, so you're expecting billions of visitors per year.
-If you'd be storing the IP address of each visit, you'd need gigabytes, or tens of gigabytes of space.
-Is it possible to <i>approximate</i> the number of unique visitors by using <i>much less</i> space?
+The pagerank of a webpage is defined to be the limit of the following process.
+Suppose each webpage start with a unit of credit.
+At each time unit, each webpage sends all its credit along its outgoing links, equally divided.
+After many simulation steps, we will reach a fixed-point: a webpage gives all its credit, but receives back on its incoming links exactly how much it gave.
+
+<p>
+To be able to do this, we assume that each webpage has at least one outgoing link.
+That's not true in practice.
+We fix this problem as follows.
+We add a dummy webpage, and give it one outgoing link to each non-dummy webpage.
+Now, at each simulation step, each webpage (including the dummy one) with at least one outgoing link does the following:
+
+<ul>
+<li>send a fraction $\alpha$ of its credit to the dummy webpage, and
+<li>split the rest equally among its outgoing links.
+</ul>
+
+<p>
+And each webpage with no outgoing link sends all its credit to the dummy webpage.
+We typically choose $\alpha \approx 0.15$.
+
+<p>
+A variation of this scheme, whose purpose is to avoid link-spammer's spider traps, is to add outgoing links from the dummy webpage not to all non-dummy webpages but only to a trusted subset.
+This way, the credit that gets recirculated will enter back the network only at trusted points.
+(Spider traps work by simply having <i>many</i> webpages that would act as entry points for the credit that gets recirculated.)
+
 
 
 </body>
