@@ -9,8 +9,40 @@
 <h1>Gaussian Elimination</h1>
 
 <p>
-TODO
+Gaussian elimination is a standard method for solving systems of linear equations.
+The input is a system of the form
+$$\begin{align}
+a_{11} x_1 + \dotsb + a_{1n} x_n &amp;= b_1 \\
+&amp;\vdots \\
+a_{m1} x_1 + \dotsb + a_{mn} x_n &amp;= b_m
+\end{align}$$
+and we will gradually transform it into
+$$\begin{align}
+x_1 &amp;= c_1 \\
+&amp;\vdots \\
+x_m &amp;= c_m
+\end{align}$$
+The basic operation we will use is to replace one equation by the linear combination of two equations.
+Suppose we know that $e=f$ and $g=h$, where $e,f,g,h$ are some expressions.
+Then, we also know that $\lambda_1 e + \lambda_2 g = \lambda_1 f + \lambda_2 h$, for all numbers $\lambda_1$ and $\lambda_2$.
+And, in fact, if $\lambda_1 \ne 0$, then
+$$\begin{align}
+\lambda_1 e + \lambda_2 g &amp;= \lambda_1 f + \lambda_2 h \\
+g &amp;=h
+\end{align}$$
+contain as much information as
+$$\begin{align}
+e &amp;= f \\
+g &amp;=h
+\end{align}$$
+Indeed, observe that the transformation is reversible, by an appropriate choice of coefficients.
 
+<p>
+We will use such transformation to first transform the system into one which has zeros below the main diagonal; that is, $a_{ij}=0$ if $i \gt j$.
+In a second phase, we will obtain the final form.
+
+<p>
+Let us see an example.
 
 </body>
 </html>
