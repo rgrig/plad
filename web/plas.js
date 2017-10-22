@@ -12,7 +12,8 @@ function toggleShow(e) {
 window.MathJax = {
     tex2jax: {
       inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-      processEscapes: true
+      processEscapes: true,
+      skipTags:  ["script","noscript","style","textarea"]
     }
   };
 
