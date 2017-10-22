@@ -11,9 +11,35 @@
 <p>
 You want to count how many distinct visitors your website has next year.
 Of course, you expect your website to be extremely popular.
-You're thinking you'll have, say, 1000 visitors every second, so you're expecting billions of visitors per year.
+You're thinking you'll have, say, 1000 visits every second, so you're expecting billions of visits per year.
 If you'd be storing the IP address of each visit, you'd need gigabytes, or tens of gigabytes of space.
 Is it possible to <i>approximate</i> the number of unique visitors by using <i>much less</i> space?
+
+<p>
+A solution is the <a href="../related/count-distinct-1985.pdf">Flajolet&ndash;Martin algorithm</a>.
+Here is a simplified version:
+
+<pre>
+$r \gets 0$
+for each incoming IP $x$:
+  $r \gets \max\{r,\rho(x)\}$
+output $2^r$
+</pre>
+
+<p>
+Here, $\rho(x)$ is the number of zeros at the end of $x$'s binary representation.
+We process a long stream of IPs, which we do not remember.
+But, we remember $r$, the maximum number of zeros we saw at the end of an IP's hash.
+And, our estimate for the number of unique IPs is $2^r$.
+
+<p>
+This simplified version works only if the distinct IPs are chosen at random.
+In such a case, because a fraction $2^{-r}$ of possible IPs have $\ge r$ zeros at the end, we have $\Pr\bigl(\rho(x) \lt r\bigr) = (1-2^{-r})$.
+Assuming that the number $k$ of distinct IPs in the stream is much smaller than the number of possible IPs, we have that the probability of all of them having $\lt r$ zeros at the end is $(1-2^{-r})^k$.
+Assuming further that $r$ is reasonably large, and using the approximation $(1-1/x)^x\approx 1/e$, we have $(1-2^{-r})^k \approx (1/e)^{k/2^r}$.
+This is an exponential function of $k$, and so it varies quite quickly.
+If $k$ is significantly larger than $2^r$, then $(1/e)^{k/2^r}\approx 0$, which means that almost surely at least one IP has $\ge r$ zeros at the end.
+If $k$ is significantly smaller than $2^r$, then $(1/e)^{k/2^r}\approx 1$, which means that almost surely all IPs have $\lt r$ zeros at the end.
 
 
 </body>
