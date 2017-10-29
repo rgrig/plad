@@ -29,7 +29,7 @@ output $2^r$
 <p>
 Here, $\rho(x)$ is the number of zeros at the end of $x$'s binary representation.
 We process a long stream of IPs, which we do not remember.
-But, we remember $r$, the maximum number of zeros we saw at the end of an IP's hash.
+But, we remember $r$, the maximum number of zeros we saw at the end of an IP.
 And, our estimate for the number of unique IPs is $2^r$.
 
 <p>
@@ -40,6 +40,57 @@ Assuming further that $r$ is reasonably large, and using the approximation $(1-1
 This is an exponential function of $k$, and so it varies quite quickly.
 If $k$ is significantly larger than $2^r$, then $(1/e)^{k/2^r}\approx 0$, which means that almost surely at least one IP has $\ge r$ zeros at the end.
 If $k$ is significantly smaller than $2^r$, then $(1/e)^{k/2^r}\approx 1$, which means that almost surely all IPs have $\lt r$ zeros at the end.
+
+<p>
+Of course, IPs are not random.
+We can make them look random by applying a random hash function.
+Let us write $X$ for the set $\{0,\ldots,2^{32}-1\}$ of IPv4 addresses.
+Ideally, we would pick the hash to be a function $h:X\to X$,
+  uniformly at random among all such one-to-one functions (aka permutations).
+Alas, this is easier said than done.
+We also want $h$ to be easy to compute.
+You may remember that for hashtables one typically uses a function
+  $h_a(x) := ax \bmod 2^{32}$.
+However, such a function would be useless for our purposes, because
+  $\rho(h_a(x))=\rho(a)+\rho(x)$.
+(Exercise: Why?)
+So, applying such a hash function would simply amount
+  to multiplying our estimate by $2^{\rho(a)}$.
+(Exercise: Why?)
+Instead, we will look at hash functions of the form
+  $h_a(x) := (x+a) \bmod 2^{32}$.
+We pick such a hash function at random by picking $a$ at random.
+Clearly, we only cover a small number of all possible permutations on $X$.
+
+<p>
+Here is the refined algorithm:
+
+<pre>
+$r \gets 0$
+$a \gets \mathrm{UniformRandom}(2^{32})$
+for each incoming IP $x$:
+  $r \gets \max\{r,\rho((x+a) \bmod 2^{32})\}$
+output $2^r$
+</pre>
+
+<p>
+Finally,
+  we observe that each choice of $a$ would give us a possibly different estimate.
+Thus, we can use several values for $a$ to get several estimates,
+  and then we combine these estimates.
+The usual method for combining estimates is the following:
+  (1) group estimates into bunches;
+  (2) for each bunch, compute the average; and
+  (3) take the median of the averages.
+This is the algorithm we will implement.
+
+
+<p>
+Widely used libraries, like Redis,
+  used a refinement of this algorithm (also by Flajolet) called HyperLogLog.
+The est known algorithm is by
+  <a href="../related/count-distinct-2010.pdf">Kane, Nelson, and Woodruff</a>.
+In particular, they do not need to rely on randomness.
 
 
 </body>
