@@ -1,3 +1,4 @@
+// g++ -std=c++11 -O3 CountDistinctGen.cpp -o CountDistinctGen
 #include <cassert>
 #include <cinttypes>
 #include <cstdint>
