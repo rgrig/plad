@@ -18,12 +18,11 @@ How do you do it?
 
 <p>
 Let $d_1,\ldots,d_m$ be the denominations available, and let $c_{i,j}$ be the minimum number of coins necessary to pay the sum $j$ if we are allowed to use only the first $i$ denominations, namely $d_1,\ldots,d_i$.
-When we pay $j$ with the first $i$ denominations, we use $d_i$ zero or more times and we pay the rest with the first $i-1$ denominations.
+When we pay $j$ with the first $i$ denominations, we either use $d_i$ or we don't:
 
 $$
-  c_{i,j} = \min_{k\ge 0} (k + c_{i-1,j-k d_j} )
+  c_{i,j} = \min \{ 1 + c_{i,j-d_j},\ c_{i-1,j} \}
 $$
-
 
 If we cannot pay $j$ with the first $i$ denominations, we let $c_{i,j}:=\infty$.
 In particular, we cannot pay negative amounts.
