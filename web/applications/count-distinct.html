@@ -40,7 +40,7 @@ Assuming further that $r$ is reasonably large, and using the approximation $(1-1
 This is an exponential function of $k$, and so it varies quite quickly.
 If $k$ is significantly larger than $2^r$, then $(1/e)^{k/2^r}\approx 0$, which means that almost surely at least one IP has $\ge r$ zeros at the end.
 If $k$ is significantly smaller than $2^r$, then $(1/e)^{k/2^r}\approx 1$, which means that almost surely all IPs have $\lt r$ zeros at the end.
-(TODO: add $\ln 2$, in code as well.)
+In fact, the mid-point between very high and very low probability is $(1/e)^{k/2^r}=1/2$, which suggests that a better estimate would be $k\approx 2^r \cdot \ln2$.
 
 <p>
 Of course, IPs are not random.
@@ -93,6 +93,24 @@ The best known algorithm is by
   <a href="../related/count-distinct-2010.pdf">Kane, Nelson, and Woodruff</a>.
 In particular, they do not need to rely on randomness.
 
+
+<h2>Input/Output</h2>
+
+<p>
+<b>Input:</b>
+A stream of integers $x_1,x_2,\ldots$, such that $0\le x_k \lt 2^{32}$ for each $k\gt 0$.
+
+<p>
+<b>Output:</b>
+One integer that is the best guess for how many distinct values were in the input.
+
+<h2>Exercises</h2>
+
+<ol>
+<li>
+  Implement a solution that uses a pre-packaged HyperLogLog.
+  Then try to beat it.
+</ol>
 
 </body>
 </html>

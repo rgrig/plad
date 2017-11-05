@@ -35,7 +35,27 @@ A variation of this scheme, whose purpose is to avoid link-spammer's spider trap
 This way, the credit that gets recirculated will enter back the network only at trusted points.
 (Spider traps work by simply having <i>many</i> webpages that would act as entry points for the credit that gets recirculated.)
 
+<h2>Input/Output</h2>
 
+<p>
+<b>Input:</b>
+The first line contains an integer $n$ which gives the number of pages.
+We will identify pages by numbers $1,\ldots,n$.
+The second line contains a real number $\alpha$, which says what credit proportion is sent to the dummy page.
+The next $n$ lines each contain a list of integers:
+  on the $i$th line we have a list of pages to which page $i$ has links;
+  this list is terminated by a dummy $0$.
+
+<p>
+<b>Output:</b>
+$n+1$ real numbers that add up to $n+1$.
+The first is the pagerank of the dummy node; the following ones are the pageranks of pages $1,\ldots,n$.
+
+<h2>Exercises</h2>
+
+<ol>
+<li>TODO
+</ol>
 
 </body>
 </html>
