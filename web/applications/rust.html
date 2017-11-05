@@ -6,12 +6,58 @@
 </head>
 
 <body>
-<h1>Interpreter</h1>
+<h1>Rust</h1>
 
 <p>
-Brainfuck.
+First, we implement a program that adds numbers.
+Second, we discuss high-level goals of Rust.
 
+<h2>Adding Numbers</h2>
 
+<p>
+Install Rust by following the instructions at <a href="https://rustup.rs/">https://rustup.rs/</a>.
+Test your installation:
+
+<pre>
+echo 'fn main() { println!("Hi"); }' &gt; tmp.rs
+rustc tmp.rs
+./tmp
+</pre>
+
+<p>
+The program should run and print &lsquo;Hi&rsquo;.
+
+<p>
+Now let's write a program that adds two numbers and prints their sum.
+
+<pre>
+use std::io;
+use std::io::BufRead;
+
+fn main() {
+    let stdin = io::stdin();
+
+    for line in stdin.lock().lines() {
+        let s = line.expect("A");
+        let mut sum = 0;
+        for w in s.split_whitespace() {
+            let x : i32 = w.parse().expect("B");
+            sum += x;
+        }
+        println!("{}", sum);
+    }
+}
+</pre>
+
+<p>
+The calls to <code>expect</code> make this program fail hard if something goes wrong.
+
+<h2>Design</h2>
+
+<p>
+Rust has ownership.
+Bla.
+And bla.
 
 </body>
 </html>
