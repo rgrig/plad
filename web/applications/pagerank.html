@@ -17,23 +17,14 @@ After many simulation steps, we will reach a fixed-point: a webpage gives all it
 <p>
 To be able to do this, we assume that each webpage has at least one outgoing link.
 That's not true in practice.
-We fix this problem as follows.
-We add a dummy webpage, and give it one outgoing link to each non-dummy webpage.
-Now, at each simulation step, each webpage (including the dummy one) with at least one outgoing link does the following:
+The original Pagerank fixes this problem in a way that we leave as an exercise.
+Instead, we use the following simple scheme:
 
 <ul>
-<li>send a fraction $\alpha$ of its credit to the dummy webpage, and
-<li>split the rest equally among its outgoing links.
+<li>add a dummy webpage
+<li>add a link from each page (dummy or not) to the dummy
+<li>add a link from the dummy to each non-dummy
 </ul>
-
-<p>
-And each webpage with no outgoing link sends all its credit to the dummy webpage.
-We typically choose $\alpha \approx 0.15$.
-
-<p>
-A variation of this scheme, whose purpose is to avoid link-spammer's spider traps, is to add outgoing links from the dummy webpage not to all non-dummy webpages but only to a trusted subset.
-This way, the credit that gets recirculated will enter back the network only at trusted points.
-(Spider traps work by simply having <i>many</i> webpages that would act as entry points for the credit that gets recirculated.)
 
 <h2>Input/Output</h2>
 
@@ -45,7 +36,8 @@ The second line contains a real number $\alpha$, which says what credit proporti
 The next $n$ lines each contain a list of integers:
   on the $i$th line we have a list of pages to which page $i$ has links;
   this list is terminated by a dummy $0$.
-It <i>is</i> possible to have multiple links to the same destination.
+It is possible to have multiple links to the same destination,
+  and it is possible to have loops.
 
 <p>
 <b>Output:</b>
@@ -55,7 +47,27 @@ The first is the pagerank of the dummy node; the following ones are the pagerank
 <h2>Exercises</h2>
 
 <ol>
-<li>TODO
+<li>
+  Our scheme is vulnerable to spammer spider traps.
+  These are configurations of $1+n$ webpages $x,y_1,\ldots,y_n$
+    with links $x \leftrightarrow y_k$ for all $k$.
+  Because the dummy page has links to all of $y_1,\ldots,y_n$
+    and they all link only to $x$, the latter ends up with a high pagerank.
+  A solution is to add links from the dummy only to a subset of trusted nondummies.
+  Implement this!
+  And, by the way, the same idea is used to bias the search towards results from a certain topic.
+<li>
+  The original pagerank uses a different fix for the problem of draining credit.
+  Let $t_{ij}$ be the fraction of $i$'s links that go to $j$,
+    and write $T$ for the matrix with entries $t_{ij}$.
+  Then, the simple version (with no fix), is asking for an $x$ such that $x=xT$.
+  This can be solve by iterating, $x_{n+1}:=x_nT $.
+  The original pagerank changes this to two steps:
+    $y_n := x_n T$ and then $x_{n+1} := \alpha [1/n \ldots 1/n] + (1-\alpha) y_n$.
+  Here, $\alpha\approx0.15$.
+  So, the credit is first moved according to original links (with possible draininig),
+    and then the credit of each page is shifted towards $1/n$.
+  Try it!
 </ol>
 
 </body>
