@@ -1,38 +1,33 @@
 open Printf
 open Scanf
 
-let id x = x
-let read_int () = scanf "%d " id
-
-let epsilon = 1e-9
+let read_int () = scanf "%d " (fun x -> x)
+let epsilon = 1e-6
 
 let read_input () =
   let n = read_int () in
-  let m = Array.make_matrix (n + 1) (n + 1) 0.0 in
-  for i = 0 to n do m.(i).(0) <- 1.0 done;
-  for i = 1 to n do m.(0).(i) <- 1.0 done;
-  for i = 1 to n do begin
-    let rec loop = function
-      | 0 -> ()
-      | j -> m.(i).(j) <- m.(i).(j) +. 1.0; loop (read_int ()) in
-    loop (read_int ())
-  end done;
-  m
+  let read_line () =
+    let rec f xs =
+      let x = read_int () in
+      if x == 0 then (x :: xs) else f (x :: xs) in
+    f [] in
+  let rec read_matrix acc = function
+    | 0 -> List.rev acc
+    | n -> read_matrix (read_line () :: acc) (n - 1) in
+  let range a b =
+    let rec f xs b = if a <= b then f (b :: xs) (b - 1) else xs in
+    f [] (b - 1) in
+  read_matrix [range 0 (n + 1)] n
 
-let normalize m =
-  let n = Array.length m in
-  let norm_row xs =
-    let sum = Array.fold_left (+.) 0.0 xs in
-    for i = 0 to n - 1 do xs.(i) <- xs.(i) /. sum done in
-  Array.iter norm_row m
-
-let solve m =
-  let n = Array.length m in
+let solve graph =
+  let n = List.length graph in
   let rec loop now nxt =
     for i = 0 to n - 1 do nxt.(i) <- 0.0 done;
-    for i = 0 to n - 1 do for j = 0 to n - 1 do
-      nxt.(j) <- nxt.(j) +. now.(i) *. m.(i).(j)
-    done done;
+    let page i xs =
+      let z = float_of_int (List.length xs) in
+      let link j = nxt.(j) <- nxt.(j) +. now.(i) /. z in
+      List.iter link xs in
+    List.iteri page graph;
     let error = ref 0.0 in
     for i = 0 to n - 1 do
       error := max !error (abs_float (now.(i) -. nxt.(i)))
@@ -41,7 +36,5 @@ let solve m =
   loop (Array.make n 1.0) (Array.make n 0.0)
 
 let () =
-  let m = read_input () in
-  normalize m;
-  let ranks = solve m in
-  Array.iter (printf "%.9f\n") ranks
+  let ranks = read_input () |> solve in
+  Array.iter (printf "%.6f\n") ranks
