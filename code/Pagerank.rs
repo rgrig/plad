@@ -1,4 +1,3 @@
-// TODO: make it work for sparse graphs
 use std::io;
 use std::io::Read;
 use std::mem::swap;
@@ -14,37 +13,28 @@ fn main() {
         iterinput.next().expect("missing number of pages")
         .parse().expect("number of pages should be nonnegative int");
 
-    let mut m : Vec<Vec<f64>> = vec![vec![0.0; n+1]; n+1];
-    for i in 0..(n+1) { m[i][0] += 1.0; }
-    for i in 1..(n+1) { m[0][i] += 1.0; }
+    let mut m : Vec<Vec<usize>> = vec![vec![]; n+1];
+    for i in 0..(n+1) { m[0].push(i); }
     for i in 1..(n+1) {
-        let mut j : usize;
         while {
-            j = iterinput.next().expect("j").parse().expect("usize");
+            let j : usize = iterinput.next().expect("j").parse().expect("usize");
+            m[i].push(j);
             j != 0
-        } {
-            m[i][j] += 1.0;
-        }
-    }
-
-    // Normalize transition matrix.
-    for i in 0..(n+1) {
-        let s : f64 = m[i].iter().sum();
-        m[i] = m[i].iter().map(|x| x/s).collect();
+        } {}
     }
 
     // Iterate.
-    let mut now = vec![1.0; n + 1];
-    let mut nxt = vec![0.0; n + 1];
+    let mut now : Vec<f64> = vec![1.0; n + 1];
+    let mut nxt : Vec<f64> = vec![0.0; n + 1];
     while {
         for i in 0..(n+1) {
-            for j in 0..(n+1) {
-                nxt[j] += now[i] * m[i][j];
+            for j in &m[i] {
+                nxt[*j] += now[i] / (m[i].len() as f64);
             }
         }
         let error =
             (0..(n+1)).fold(0.0, |x,i| (now[i]-nxt[i]).abs().max(x));
-        error > 1e-9
+        error > 1e-6
     } {
         swap(&mut now, &mut nxt);
         nxt = vec![0.0; n + 1];
