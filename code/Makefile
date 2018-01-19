@@ -1,6 +1,6 @@
-all: CountDistinct-Haskell CoinChange-Haskell CountDistinct.class CoinChange-Rust Pagerank-Rust Pagerank-OCaml
+all: CountDistinct-Haskell CoinChange-Haskell CountDistinct.class CoinChange-Rust Pagerank-Rust Pagerank-OCaml add-Haskell add-Rust
 
-CountDistinct-Haskell CoinChange-Haskell: %-Haskell: %.hs
+add-Haskell CountDistinct-Haskell CoinChange-Haskell: %-Haskell: %.hs
 	ghc --make -O2 $< -o $@
 
 CountDistinct.class: CountDistinct.java

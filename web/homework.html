@@ -136,6 +136,21 @@ There are two commands available:
 The cost of installing a package is that package's size.
 The cost of uninstalling a package is&nbsp;$10^6$ (one million).
 
+<p>
+The initial state will be given as a JSON list of package references.
+The list of commands that you should produce must also be a JSON list.
+Each command is a package reference prepended with + (for install) or - (for uninstall).
+See <a href="https://github.com/ukc-co663/depsolver/tree/master/tests/example-0">the example</a>.
+
+<p>
+You can use any language you want.
+You can use any library you want.
+You can use any program you want.
+As long as the <a href="https://github.com/ukc-co663/depsolver">grading procedure</a> works.
+In particular, you have to make it work on a clean Ubuntu&nbsp;16.04.
+A word of caution: most existing dependency solvers do <i>not</i> require that intermediate states are valid (and are not guaranteed that the initial state is valid).
+
+
 <h2>Scoring</h2>
 
 <p>
@@ -152,10 +167,11 @@ This homework carries 30 points, distributed as follows:
   Then student $i$ will get $c_{\rm best}/c_i$ points, where $c_{\rm best}=\min_k c_k$.
   For example, if your solution is twice as expensive as the best solution, then you get half point.
   We use the best submitted solution as a reference because the absolute best solution is unknown.
-<li>10 (bonus!) points for finding defects in other student's code.
+<li><b>bonus points</b> for finding defects in other student's code.
   After the deadline, you will have one week to find bugs in other student's code.
-  You get to submit a set of 10 challenge testcases, each against a particular (other) solution.
+  You get to submit a set of challenge testcases, each against a particular (other) solution.
   For each of challenge, you get one point if the solution does indeed fail.
+  The maximum number of challenges you can submit will be announced shortly after the deadline.
   Important: You do <i>not</i> get penalized in any way if other students successfully challenge your code!
 </ul>
 
