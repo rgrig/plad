@@ -1,0 +1,195 @@
+<html>
+<head>
+  <link rel="stylesheet" href="./plad.css">
+  <script type="text/javascript" src="./plad.js"></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML' type='text/javascript'></script>
+</head>
+
+<body>
+<h1>Homework: Dependencies Manager</h1>
+
+<p>
+Most operating systems and most programming languages come with tools for installing and uninstalling.
+In the case of operating systems, one installs and uninstalls &lsquo;packages&rsquo; or &lsquo;apps&rsquo;;
+in the case of programming languages, libraries.
+For example,
+  MacOS has <tt>homebrew</tt>,
+  Debian and Ubuntu have <tt>apt</tt>,
+  Haskell has <tt>cabal</tt>,
+  Rust has <tt>cargo</tt>,
+  OCaml has <tt>opam</tt>,
+  Python has <tt>pip</tt>.
+Your task is to implement the basic functionality of such a dependency manager.
+
+<h2>Repositories</h2>
+
+<p>
+Here is an example repository description:
+
+<pre>
+[ { "name"  : "A"
+  , "version" : "2.01"
+  , "size" : 1672
+  , "depends" :
+    [ [ "B&gt;=3.1", "C=1" ]
+    , [ "D" ]] }
+, { "name" : "B"
+  , "version" : "3.0"
+  , "size" : 83619 }
+, { "name" : "B"
+  , "version" : "3.2"
+  , "size" : 211234
+  , "conflicts" : [ "B&lt;3.2" ] }
+, { "name" : "C"
+  , "version" : "1"
+  , "size" : 23
+  , "conflicts" : [ "B" ]
+  , "depends" : [] }
+, { "name" : "D"
+  , "version" : "10.3.1"
+  , "size" : 88847
+  , "conflicts" : [ "B&gt;=3.1" ] } ]
+</pre>
+
+<p>
+It consists of a list of objects, in the <a href="https://www.json.org/">JSON format</a>.
+Each object represents a package, using the following fields:
+<ul>
+<li><i>name</i>: string of letters from <tt>[.+a-zA-Z0-9-]</tt>
+<li><i>version</i>: list of nonnegative integers separated by dots (as a JSON string, with double-quotes around it)
+</ul>
+
+<p>
+We write "NAME=VERSION" to refer to a particular package.
+For example, "A=2.01" refers to the first package in the list above, as does "A=2.1".
+We can also refer to a range of packages, using one of the five forms:
+  "NAME&lt;VERSION", "NAME&lt;=VERSION", "NAME&gt;VERSION", "NAME&gt;=VERSION",
+  "NAME".
+The last form refers to all the versions of a package with the given name.
+When comparing versions we use
+  <a href="https://en.wikipedia.org/wiki/Lexicographical_order">lexicographic order</a>.
+Let us continue with the other fields.
+
+<ul>
+<li><i>size</i>: a positive integer
+<li><i>depends</i>: a list of lists of package references
+<li><i>conflicts</i>: a list of package references
+</ul>
+
+<p>
+The dependencies should be interpreted as a conjunction of disjunctions.
+For example,
+  package <tt>A=2.1</tt> from above has two requirements that both must be satisfied:
+  (i)&nbsp;at least one package referred to by <tt>B&gt;=3.1</tt> or <tt>C=1</tt>
+    must be installed, and
+  (ii)&nbsp;at least one package with name <tt>D</tt> must be installed.
+The conflicts list should be interpreted as follows:
+  none of the referred packages should be present.
+The fields <i>depends</i> and <i>conflicts</i> might be missing, in which case they should be treated as if present but with an empty list as their value.
+
+<p>
+The <i>state</i> of a system is simply a subset of a repository's packages, which are installed.
+A state is <i>valid</i> if all requirements from the repository description are met (dependencies and conflicts).
+For example, the repository from above has 8 valid states (out of 32 possible states):
+
+<pre>
+[]
+[ "D=10.3.1" ]
+[ "C=1" ]
+[ "B=3.2" ]
+[ "B=3.0" ]
+[ "D=10.3.1", "C=1" ]
+[ "D=10.3.1", "B=3.0" ]
+[ "A=2.1", "C=1", "D=10.3.1" ]
+</pre>
+
+<p>
+There are 4 valid states in which <tt>D=10.3.1</tt> is installed;
+there is only one valid state in which <tt>A=2.1</tt> is installed.
+
+<h2>Task</h2>
+
+<p>
+You will be given:
+<ol>
+<li>a repository description, holding a package list with dependencies and conflicts;
+<li>a valid state $S$ of that repository;
+<li>a set of constraints, each in the form of a package reference:
+  <ul>
+  <li>a positive constraint requires that at least one of the referred packages is installed
+  <li>a negative constraint requires that all the referred packages are not installed.
+  </ul>
+</ol>
+
+<p>
+Your task is twofold:
+<ol>
+<li>find a valid state $T$ that satisfies the given constraints
+  (as well as the repository's constraints), and
+<li>construct a list of commands that transforms the given state $S$ into your target state $T$, such that all intermediate states are valid, and you minimize the cost of the transformation.
+</ol>
+
+<p>
+There are two commands available:
+  (a)&nbsp;install a package (which was not already installed), and
+  (b)&nbsp;uninstall a package (which was installed).
+The cost of installing a package is that package's size.
+The cost of uninstalling a package is&nbsp;$10^6$ (one million).
+
+<p>
+The initial state will be given as a JSON list of package references.
+The list of commands that you should produce must also be a JSON list.
+Each command is a package reference prepended with + (for install) or - (for uninstall).
+See <a href="https://github.com/ukc-co663/depsolver/tree/master/tests/example-0">the example</a>.
+
+<p>
+You can use any language you want.
+You can use any library you want.
+You can use any program you want.
+As long as the <a href="https://github.com/ukc-co663/depsolver">grading procedure</a> works.
+In particular, you have to make it work on Ubuntu&nbsp;16.04.
+A word of caution: most existing dependency solvers do <i>not</i> require that intermediate states are valid (and are not guaranteed that the initial state is valid).
+
+
+<h2>Scoring</h2>
+
+<p>
+This homework carries 30 points, distributed as follows:
+
+<ul>
+<li>10 points for solving the given tests.
+  There is 1 point for each test, which you either get or not, depending on whether the list of commands you produce is correct or not, but without regard to how efficient it is.
+<li>10 points for solving unseen tests.
+  These points are awarded similarly, but on tests to which you do not have access.
+<li>10 points for solving the given tests efficiently.
+  For each test you will get a maximum of 1 point.
+  Let $c_i$ be the cost of the solution produced by student $i$.
+  Then student $i$ will get $c_{\rm best}/c_i$ points, where $c_{\rm best}=\min_k c_k$.
+  For example, if your solution is twice as expensive as the best solution, then you get half point.
+  We use the best submitted solution as a reference because the absolute best solution is unknown.
+<li><b>bonus points</b> for finding defects in other student's code.
+  After the deadline, you will have one week to find bugs in other student's code.
+  You get to submit a set of challenge testcases, each against a particular (other) solution.
+  For each challenge, you get one point if the solution does indeed fail.
+  The maximum number of challenges you can submit will be announced shortly after the deadline.
+  Important: You do <i>not</i> get penalized in any way if other students successfully challenge your code!
+</ul>
+
+<p>
+Since the points add up to more than 30, the mark is capped.
+
+<p>
+You can find <a href="https://github.com/ukc-co663/depsolver">the judge and the test data here</a>.
+
+
+<h2>References</h2>
+
+<ol>
+<li>Russ Cox, <a href="https://research.swtch.com/version-sat">Version SAT</a>.
+</ol>
+
+</body>
+</html>
+<!--
+vim:spell:spelllang=en_us:wrap:linebreak:
+-->
