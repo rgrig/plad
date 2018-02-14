@@ -3,71 +3,120 @@
   <link rel="stylesheet" href="../plad.css">
   <script type="text/javascript" src="../plad.js"></script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML' type='text/javascript'></script>
+  <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?lang=ml&amp;skin=sons-of-obsidian"></script>
 </head>
 
 <body>
-<h1>Applications</h1>
+<h1>OCaml</h1>
 
-<style>
-table {
-    border-collapse: collapse;
-    text-align: center;
-}
+<p>
+OCaml is a strict functional language.
 
-table, th, td {
-    border: 1px solid black;
-}
-</style>
-<table>
-<tr>
-  <td></td>
-  <td><a href="count-distinct.html">Count Distinct</a></td>
-  <td><a href="coin-change.html">Coin Change</a></td>
-  <td><a href="pagerank.html">Pagerank</a></td>
-  <td><a href="interpreter.html">Interpreter</a></td>
-  <td><a href="gaussian-elimination.html">Gaussian Elimination</a></td>
-</tr>
-<tr>
-  <td><a href="java.html">Java</a></td>
-  <td><a href="count-distinct-java.html">X</a></td>
-  <td></td>
-  <td></td>
-  <td></td>
-  <td><a href="gaussian-elimination-java.html">X</a></td>
-</tr>
-<tr>
-  <td><a href="haskell.html">Haskell</a></td>
-  <td><a href="count-distinct-haskell.html">X</a></td>
-  <td><a href="coin-change-haskell.html">X</a></td>
-  <td></td>
-  <td></td>
-  <td></td>
-</tr>
-<tr>
-  <td><a href="rust.html">Rust</a></td>
-  <td></td>
-  <td><a href="coin-change-rust.html">X</a></td>
-  <td><a href="pagerank-rust.html">X</a></td>
-  <td></td>
-  <td></td>
-</tr>
-<tr>
-  <td><a href="ocaml.html">OCaml</a></td>
-  <td></td>
-  <td></td>
-  <td><a href="pagerank-ocaml.html">X</a></td>
-  <td><a href="interpreter-ocaml.html">X</a></td>
-  <td></td>
-</tr>
-<tr>
-  <td><a href="python.html">Python</a></td>
-  <td></td>
-  <td></td>
-  <td></td>
-  <td><a href="interpreter-python.html">X</a></td>
-  <td><a href="gaussian-elimination-python.html">X</a></td>
-</tr>
-</table>
+<h2>Functional and Strict</h2>
+<p>
+Let me say very quickly why we call it functional and why we call it strict.
+We call it functional because it has lambda calculus at its core.
+Lambda calculus terms are defined as follows:
+$$\begin{array}{rcll}
+t &amp; ::= &amp; x  &amp; \text{variable} \\
+&amp; \mid &amp; t\,t &amp; \text{application} \\
+&amp; \mid &amp; \lambda x.\, t &amp; \text{abstraction}
+\end{array}$$
+In words:
+  if $x$ is a variable, then $x$ is a term;
+  if $t_1$ and $t_2$ are terms, then $t_1\,t_2$ is a term (and we say that $t_1$ is applied to $t_2$);
+  if $x$ is a variable and $t$ is a term, then $\lambda x.\,t$ is a term.
+Here are some examples of terms:
+$$
+x \qquad x\,x \qquad (\lambda x.\, (x x))\,(\lambda x.\, (x\, x))
+$$
+
+<p>
+Apart from existing, these terms also <i>do</i> something.
+More precisely, we define the $\beta$-reduction rule as follows:
+$$
+  (\lambda x.\, t_1) t_2 \;\triangleright_\beta\; t_1[x\mapsto t_2]
+$$
+This notation means that inside $t_1$ we replace $x$ by $t_2$.
+
+<p>
+OCaml is called functional because it can do all these things, and more.
+Instead of $(\lambda x.\, t)$, in OCaml we write <code class="prettyprint lang-ml">(fun x -&gt; t)</code>.
+Here is an example of $\beta$-reduction with OCaml code:
+
+<p>
+<code class="prettyprint lang-ml">((fun f -&gt; fun x -&gt; f (f x)) (fun x -&gt; x + 1)) 10</code>
+<br/>$\triangleright_\beta$
+<code class="prettyprint lang-ml">(fun x -&gt; (fun x -&gt; x + 1) ((fun x -&gt; x + 1) x)) 10</code>
+<br/>$\approx_\alpha$
+<code class="prettyprint lang-ml">(fun x -&gt; (fun y -&gt; y + 1) ((fun z -&gt; z + 1) x)) 10</code>
+<br/>$\triangleright_\beta$
+<code class="prettyprint lang-ml">(fun x -&gt; (fun y -&gt; y + 1) (x + 1)) 10</code>
+<br/>$\triangleright_\beta$
+<code class="prettyprint lang-ml">(fun x -&gt; (x + 1) + 1) 10</code>
+<br/>$\triangleright_\beta$
+<code class="prettyprint lang-ml">(10 + 1) + 1</code>
+</p>
+
+<p>
+There are quite a few things to observe here:
+<ul>
+<li>The <code>fun</code> construct introduces a variable name, and occurrences of variables names refer to the innermost such <code>fun</code> that matches.
+  The $\approx_\alpha$ step is called $\alpha$-renaming.
+  In that step we changed distinct variables to have distinct names, so we don't get confused.
+<li>We can apply $\beta$-reduction to a term inside a term.
+  In particular, in some situations there are a few places where we could apply $\beta$-reduction.
+  OCaml is called <i>strict</i> because it always chooses a small (that is, innermost) term to reduce.
+<li>OCaml has integers, which are not present in lambda calculus.
+  Indeed, it is quite difficult to give nice examples without using some add-ons, such as integers or strings.
+</ul>
+
+<p>
+Two other big add-ons of OCaml, as compared to $\lambda$-calculus, are (1)&nbsp;the ability to name things, and (2)&nbsp;types.
+Indeed, the term from above would more likely be written as follows:
+
+<pre class="prettyprint lang-ml">
+let twice f x = f (f x) in
+let addone x = x + 1 in
+twice addone 10
+</pre>
+
+<p>
+To see how this becomes what we wrote earlier, we desugar step by step.
+First, we make the $\lambda$-abstractions explicit.
+
+<pre class="prettyprint lang-ml">
+let twice = (fun f -&gt; (fun x -&gt; f (f x))) in
+let addone = (fun x -&gt; x + 1) in
+twice addone 10
+</pre>
+
+<p>
+Then we replace names by the expressions they denote.
+
+<p>
+The types of some of the terms from above are
+
+<pre class="prettyprint lang-ml">
+val twice : ('a -&gt; 'a) -&gt; 'a -&gt; 'a
+val addone : int -&gt; int
+val 10 : int
+val (+) : int -&gt; int -&gt; int
+</pre>
+
+<h2>Now, Slightly Slower</h2>
+
+<p>
+What follows is a tutorial based on <a href="https://www.coursera.org/learn/programming-languages">lecture notes of Dan Grossman</a>.
+Here, however, we'll go quicker.
+If you want the slower pace, follow the link above.
+
+<p>
+TODO: CONTINUE HERE
+
+<h2>Further Reading</h2>
+<p>
+For a quick introduction to OCaml, follow <a href="https://ocaml.org/learn/">these tutorials</a>.
 
 
 </body>
