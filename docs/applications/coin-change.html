@@ -21,7 +21,7 @@ Let $d_1,\ldots,d_m$ be the denominations available, and let $c_{i,j}$ be the mi
 When we pay $j$ with the first $i$ denominations, we either use $d_i$ or we don't:
 
 $$
-  c_{i,j} = \min \{ 1 + c_{i,j-d_j},\ c_{i-1,j} \}
+  c_{i,j} = \min \{ 1 + c_{i,j-d_i},\ c_{i-1,j} \}
 $$
 
 If we cannot pay $j$ with the first $i$ denominations, we let $c_{i,j}:=\infty$.
