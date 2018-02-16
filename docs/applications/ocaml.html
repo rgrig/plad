@@ -73,7 +73,7 @@ There are quite a few things to observe here:
   In particular, in some situations there are a few places where we could apply $\beta$-reduction.
   OCaml is called <i>strict</i> because it always chooses a small (that is, innermost) term to reduce.
   (More precisely, if we write $B[t]$ for what we get after one reduction step applied somewhere in term $t$, then $B[(\lambda x.\, t_1)\,t_2]$ is $(\lambda x.\, t_1)\,B[t_2]$ if $B[t_2]$ is defined and otherwise $t_1[x\mapsto t_2]$.
-  That is, we apply $\beta$-reduction to the outermost level only if we can't reduce something $t_2$.
+  That is, we apply $\beta$-reduction to the outermost level only if we can't reduce something in $t_2$.
   OCaml also has the convention that $B[x]$ and $B[\lambda x.\,t]$ are not defined.
   That is, it doesn't $\beta$-reduce under $\lambda$-abstractions.)
   
