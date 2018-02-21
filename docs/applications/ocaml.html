@@ -138,7 +138,7 @@ These are selected from Dan Grossman's PL course, and sometimes modified.
   For example, <code class="prettyprint lang-ml">prefix_sums [1;2;3]</code> is <code class="prettyprint lang-ml">[0;1;3;6]</code>.
 <li>
   Consider the following data type:
-  <code class="prettyprint lang-ml">type json = Num of double | Array of json list | Object of (string * json) list</code>.
+  <code class="prettyprint lang-ml">type json = Num of float | Array of json list | Object of (string * json) list</code>.
   <ol type="a">
   <li>Implement a function <code class="prettyprint lang-ml">dot : json -&gt; string -&gt; json option</code> such that <code class="prettyprint lang-ml">dot j f</code> returns <code class="prettyprint lang-ml">Some x</code> if <code class="prettyprint lang-ml">j</code> is an object associating field <code class="prettyprint lang-ml">f</code> to value <code class="prettyprint lang-ml">x</code>, and <code class="prettyprint lang-ml">None</code> otherwise.
   <li>Implement a function <code>show : json -&gt; string</code> which prints <a href="https://www.json.org/">JSON in the usual format</a> (handling only the three cases from the data type defined in this exercise).
