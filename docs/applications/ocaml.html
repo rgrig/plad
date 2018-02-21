@@ -124,6 +124,28 @@ If you want the slower pace, follow the link above.
 <p>
 TODO: CONTINUE HERE
 
+<h2>Exercises</h2>
+
+<p>
+These are selected from Dan Grossman's PL course, and sometimes modified.
+
+<ol>
+<li>
+  Implement a function <code class="prettyprint lang-ml">what_month : int -&gt; int</code> that is given a day index in the year (from 1 to 365) and returns a month index (from 1 to 12), of the month that contains the given day.
+  Assume the year is not a leap year.
+<li>
+  Implement a function <code class="prettyprint lang-ml">prefix_sums : int list -&gt; int list</code> that computes the sums of all prefixes of the given list.
+  For example, <code class="prettyprint lang-ml">prefix_sums [1;2;3]</code> is <code class="prettyprint lang-ml">[0;1;3;6]</code>.
+<li>
+  Consider the following data type:
+  <code class="prettyprint lang-ml">type json = Num of double | Array of json list | Object of (string * json) list</code>.
+  <ol type="a">
+  <li>Implement a function <code class="prettyprint lang-ml">dot : json -&gt; string -&gt; json option</code> such that <code class="prettyprint lang-ml">dot j f</code> returns <code class="prettyprint lang-ml">Some x</code> if <code class="prettyprint lang-ml">j</code> is an object associating field <code class="prettyprint lang-ml">f</code> to value <code class="prettyprint lang-ml">x</code>, and <code class="prettyprint lang-ml">None</code> otherwise.
+  <li>Implement a function <code>show : json -&gt; string</code> which prints <a href="https://www.json.org/">JSON in the usual format</a> (handling only the three cases from the data type defined in this exercise).
+  </ol>
+<li>
+  Implement a function <code class="prettyprint lang-ml">map_option : ('a -&gt; 'b option) -&gt; 'a list -&gt; 'b list</code> such that <code class="prettyprint lang-ml">map_option f xs</code> applies <code class="prettyprint lang-ml">f</code> to each element of <code class="prettyprint lang-ml">xs</code> and retains only the Some results.
+</ol>
 
 </body>
 </html>
