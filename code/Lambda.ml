@@ -28,9 +28,21 @@ let rec substitute context = function
 
 (* Using OCaml reduction strategy: strict, and not descend below Abs. *)
 let rec eval context = function
-  | App (Abs (x, t1), t2) -> eval (Context.add context x (eval context t2)) t1
+  | App (t1, t2) ->
+      let t1 = eval context t1 in
+      let t2 = eval context t2 in
+      (match t1 with
+      | Abs (x, t1x) -> eval (Context.add context x t2) t1x
+      | _ -> App (t1, t2))
   | t -> substitute context t
 
 let () =
-  let t = (App (Abs ("x", App (Var "x", Var "x")), Var "y")) in
-  Format.printf "before: %a@\nafter: %a@\n" pp_term t pp_term (eval Context.empty t)
+  let tests =
+    [ App (Abs ("x", App (Var "x", Var "x")), Var "y")
+    ; App (App (Abs ("x", Abs ("y", Var "x")), Var "a"), Var "b")
+    ; App (App (Abs ("x", Abs ("y", Var "y")), Var "a"), Var "b") ]
+  in
+  let f t =
+    Format.printf "@[before: %a@\nafter: %a@]@\n---@\n"
+      pp_term t pp_term (eval Context.empty t) in
+  List.iter f tests
