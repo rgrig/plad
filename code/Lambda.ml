@@ -27,7 +27,7 @@ let rec substitute context = function
   | App (t1, t2) -> App (substitute context t1, substitute context t2)
 
 (* Using OCaml reduction strategy: strict, and not descend below Abs. *)
-let rec eval context = function
+let rec eval (context : Context.t) : term -> term = function
   | App (t1, t2) ->
       let t1 = eval context t1 in
       let t2 = eval context t2 in
