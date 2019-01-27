@@ -6,7 +6,7 @@ add-Haskell CountDistinct-Haskell CoinChange-Haskell: %-Haskell: %.hs
 CountDistinct.class CoinChange.class: %.class: %.java
 	javac $<
 
-CoinChange-Rust Pagerank-Rust: %-Rust: %.rs
+add-Rust CoinChange-Rust Pagerank-Rust: %-Rust: %.rs
 	rustc -g -O $< -o $@
 
 CoinChange-OCaml Lambda-OCaml Pagerank-OCaml: %-OCaml: %.ml
