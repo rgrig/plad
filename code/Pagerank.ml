@@ -33,7 +33,7 @@ let solve graph =
       error := max !error (abs_float (now.(i) -. nxt.(i)))
     done;
     if !error > epsilon then loop nxt now else nxt in
-  loop (Array.make n 1.0) (Array.make n 0.0)
+  loop (Array.make n (1.0 /. float_of_int n)) (Array.make n 0.0)
 
 let () =
   let ranks = read_input () |> solve in

@@ -24,7 +24,7 @@ fn main() {
     }
 
     // Iterate.
-    let mut now : Vec<f64> = vec![1.0/(n as f64); n + 1];
+    let mut now : Vec<f64> = vec![1.0/((n + 1) as f64); n + 1];
     let mut nxt : Vec<f64> = vec![0.0; n + 1];
     while {
         for i in 0..(n+1) {
