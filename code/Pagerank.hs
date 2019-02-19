@@ -21,7 +21,8 @@ solveLoop graph oldRanks =
     newRanks = clump 0 $ sort $ foldl distribute [] (zip graph oldRanks)
     distribute acc (ys, xrank) = map (\y->(y,credit)) ys ++ acc
       where credit = xrank / fromIntegral (length ys)
-    clump i xs = if i == length graph then [] else irank : clump (i+1) ys
+    clump i xs | i == length graph = []
+    clump i xs | otherwise = irank : clump (i+1) ys
       where
         (irank, ys) = get 0 xs
         get acc ((j, r) : ys) | i == j = get (acc + r) ys
