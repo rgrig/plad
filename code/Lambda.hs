@@ -25,8 +25,10 @@ reduce env t1 t2 = App t1 t2
 test1 = App (Abs "x" (App (Var "x") (Var "x"))) (Var "y")
 test2 = App (App (Abs "x" (Abs "y" (Var "x"))) (Var "a")) (Var "b")
 test3 = App (App (Abs "x" (Abs "y" (Var "y"))) (Var "a")) (Var "b")
+test4 = App (Abs "x" (Abs "w" (Var "x"))) (Var "w")
 
 main = do
   putStrLn $ show (eval [] test1)
   putStrLn $ show (eval [] test2)
   putStrLn $ show (eval [] test3)
+  putStrLn $ show (eval [] test4) -- FIXME: this fails; the result should be not the identity function but a constant function returning "w"
