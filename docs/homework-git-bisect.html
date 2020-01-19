@@ -1,0 +1,194 @@
+<html>
+<head>
+  <link rel="stylesheet" href="./plad.css">
+  <script type="text/javascript" src="./plad.js"></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML' type='text/javascript'></script>
+</head>
+
+<body>
+<h1>Homework: Git Bisect</h1>
+
+<p>
+Most software projects reside in a Git repository.
+One of the more useful Git commands is <tt>bisect</tt>.
+The following is an example from its manual page:
+
+<pre>
+\$ git bisect start
+\$ git bisect bad                 # Current version is bad
+\$ git bisect good abc1234        # abc1234 is known to be good
+</pre>
+
+<p>
+The current version has some bug (is <tt>bad</tt>); version <tt>abc1234</tt> does not (is <tt>good</tt>).
+The goal is to find the commit that introduced the bug.
+Git will checkout some version between <tt>abc1234</tt> and the current one and then let you figure out if the bug is present.
+If the bug is present, you should run the following command:
+
+<pre>
+git bisect bad
+</pre>
+
+<p>
+If the bug is not present, you should run the following command:
+
+<pre>
+git bisect good
+</pre>
+
+<p>
+After this, Git checks out another version, you inform Git if the version is bad or good, and this process repeats several times.
+Eventually, Git reports what is the commit that introduced the bug.
+Now you have a good hint about where in the code you should look.
+Or, at least, you know who to blame.
+
+<p>
+Git tries to figure out where the bug was introduced by asking few questions.
+After all, figuring out if the bug is present or not may be time consuming: at the very least, it involves compiling the whole project.
+<a href="https://git-scm.com/docs/git-bisect-lk2009">Git-bisect uses a heuristic</a> that works on arbitrary histories, and degenerates to <a href="https://en.wikipedia.org/wiki/Binary_search_algorithm">binary search</a> when used on linear histories.
+Your task is to try to do better.
+
+
+<h2>A Small Example</h2>
+
+<p>
+You will write a program that communicates with a server: your program plays the role of <tt>git-bisect</tt>, the server plays the role of a human.
+The communication works over <a href="https://en.wikipedia.org/wiki/WebSocket">WebSockets</a>, with messages in <a href="https://en.wikipedia.org/wiki/JSON">JSON</a> format.
+We use WebSockets because, unlike sockets, they have a notion of message; that is, communication is not a stream of bytes, but a stream of messages.
+We use JSON because it is a widely used standard for representing structured information in a human-readable format, which makes it easy to debug.
+
+<p>
+Let us consider an example.
+Immediately after connecting, the client authenticates by sending the following message:
+
+<pre>
+  {"User": "rg399" }
+</pre>
+
+<p>
+(There is no password, but submitting solutions on behalf of somebody else will be considered a breach of academic integrity.)
+
+<p>
+Next, the server replies with a problem instance:
+
+<pre>
+  {"Problem":{"name":"pb0","good":"a","bad":"c","dag":[["a",[]],["b",["a"]],["c",["b"]]]}}
+</pre>
+
+<p>
+The dag (<a href="https://en.wikipedia.org/wiki/Directed_acyclic_graph">directed acyclic graph</a>) lists for each commit its parents:
+<ul>
+  <li><tt>a</tt> has no parent
+  <li><tt>b</tt> has parent <tt>a</tt>
+  <li><tt>c</tt> has parent <tt>b</tt>
+</ul>
+
+<p>
+This is a linear history, because each commit but one has exactly one parent.
+In general, one can have <i>merge</i> commits, which have multiple parents.
+Cycles, however, will never be present.
+The message also tells us that <tt>a</tt> is good and <tt>c</tt> is bad.
+So, the bug could have been introduced by <tt>b</tt> or <tt>c</tt>; but, which one?
+
+<p>
+The client now asks, and the server responds:
+
+<pre>
+  {"Question":"b"}
+  {"Answer":"Good"}
+</pre>
+
+<p>
+And again:
+
+<pre>
+  {"Question":"c"}
+  {"Answer":"Bad"}
+</pre>
+
+<p>
+At this point, the client figured out that the bug was introduced in version <tt>c</tt>, and communicates its solution to the server:
+
+<pre>
+  {"Solution":"c"}
+</pre>
+
+<p>
+The server now continues by either presenting a new problem instance, or by providing raw scores for all the problem instances seen so far.
+In this example, there is no further problem instance to solve, so the server replies with:
+
+<pre>
+  {"Score":{"pb0":2}}
+</pre>
+
+<p>
+If the solution was correct, the raw score is simply the number of questions asked;
+if the solution was incorrect, the raw score will be the special value <tt>null</tt>.
+
+<p>
+Observe that, from the problem instance, we already know that <tt>c</tt> is bad, so the second question asked by the client is redundant: this problem instance can be solved with just one question!
+
+<h2>Miscellany</h2>
+
+<p>
+<b>Limits.</b>
+<ul>
+<li>The server will wait for <i>at most a second</i> to receive a message from the client.
+<li>The client may ask <i>at most 1000 questions</i>; otherwise, the server hangs up.
+<li>The size of the dag (the number of strings occurring at the right of "dag") will be at most 10 million.
+</ul>
+
+<p>
+<b>Deadlines, and Simple Solution.</b>
+There is more information on <a href="https://moodle.kent.ac.uk/2019/course/view.php?id=5207">Moodle</a>.
+In particular, you can find there what are the deadlines.
+And you can download a simple Java solution and you can download a simple Java solution.
+The simple solution will ask a question for each commit, and is therefore incorrect for problem instances that have more than 1000 commits.
+
+<p>
+<b>Clarifications.</b>
+For clarifications, we recommend using Piazza.
+You can also just ask us.
+
+
+<h2>Marking</h2>
+
+<p>
+This programming project is worth 30% of your final mark.
+Because of this, the scoring rules here describe how 30 points are awarded.
+(However, because of how SDS works, marks will appear there out of 100 points, then they will be weighted to give a coursework mark, they weighted again for the final mark, and after all that weighting the score gets back to something out of 30, except that small rounding errors are introduced in the process. Sigh.)
+
+<p>
+Rules:
+
+<ul>
+<li>25 points are given for correctness; 5 points are given for efficiency
+<li>&lsquo;correctness&rsquo; implies that the limits listed above are obeyed;
+  otherwise, the server hangs up and the whole submission does not count
+<li>you do <i>not</i> get any point for efficiency unless all problem instances are solved correctly
+<li>the number of points you get for correctness will be proportional to the number of problem instances you solve correctly; for example, if there will be 1000 problem instances and you solve correctly 537 of them, then you get $537/1000 \times 25 = 13.425$ points
+<li>If all problem instances are solved correctly, then you may get up to 5 points for efficiency, as follows.
+  Let $r_i$ be your raw score for problem instance $i$;
+  let $b_i$ be the best known raw score for problem instance $i$.
+  If there are $n$ problem instances, then your score for efficiency is $\frac{5}{n} \sum_{i=1}^n \frac{b_i}{r_i}$.
+<li>There will be a test server that uses $\sim 100$ problem instances, and that displays your score computed as above.
+  <i>This is not your mark.</i>
+  You will have to submit to the submission server, which will use $\gt 1000$ problem instances and does <i>not</i> display your score.
+  The submission server will only be available for a couple of days.
+  (The reason for this setup is to avoid solutions that overfit to the problem instances we happen to use.)
+  The test server, however, will be available for a few weeks.
+</ul>
+
+
+<h2>References</h2>
+
+<ol>
+<li><a href="https://git-scm.com/docs/git-bisect-lk2009">Git Bisect Internals</a></li>
+<li><a href="https://git-scm.com/book/en/v2/Git-Internals-Git-Objects">Git Objects</a> (commits, trees).
+</ol>
+
+</body>
+</html>
+<!--
+vim:spell:spelllang=en_us:wrap:linebreak:
+-->
