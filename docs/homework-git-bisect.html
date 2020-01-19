@@ -170,7 +170,7 @@ Rules:
 <li>If all problem instances are solved correctly, then you may get up to 5 points for efficiency, as follows.
   Let $r_i$ be your raw score for problem instance $i$;
   let $b_i$ be the best known raw score for problem instance $i$.
-  If there are $n$ problem instances, then your score for efficiency is $\frac{5}{n} \sum_{i=1}^n \frac{b_i}{r_i}$.
+  If there are $n$ problem instances, then your score for efficiency is $5 \sqrt[n]{\prod_{i=1}^n \frac{b_i}{r_i}}$; that is, it is the geometric mean of the relative scores, multiplied by 5.
 <li>There will be a test server that uses $\sim 100$ problem instances, and that displays your score computed as above.
   <i>This is not your mark.</i>
   You will have to submit to the submission server, which will use $\gt 1000$ problem instances and does <i>not</i> display your score.
