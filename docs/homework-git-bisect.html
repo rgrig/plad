@@ -126,6 +126,7 @@ In this example, there is no further problem instance to solve, so the server re
 <p>
 If the solution was correct, the raw score is simply the number of questions asked;
 if the solution was incorrect, the raw score will be the special value <tt>null</tt>.
+The <tt>null</tt> score is also given when the client gives up, which can be done by sending the message <tt>"GiveUp"</tt> instead of a question or a solution.
 
 <p>
 Observe that, from the problem instance, we already know that <tt>c</tt> is bad, so the second question asked by the client is redundant: this problem instance can be solved with just one question!
@@ -135,8 +136,9 @@ Observe that, from the problem instance, we already know that <tt>c</tt> is bad,
 <p>
 <b>Limits.</b>
 <ul>
-<li>The server will wait for <i>at most a second</i> to receive a message from the client.
-<li>The client may ask <i>at most 1000 questions</i>; otherwise, the server hangs up.
+<li>At deadline, the server will hang up.
+<li>The client may ask <i>at most 1000 questions</i>; otherwise, the server hangs up and the submission does not count.
+  To avoid this, the client should send a <tt>"GiveUp"</tt> message.
 <li>The size of the dag (the number of strings occurring at the right of "dag") will be at most 10 million.
 </ul>
 
@@ -164,23 +166,85 @@ Because of this, the scoring rules here describe how 30 points are awarded.
 Rules:
 
 <ul>
-<li>25 points are given for correctness; 5 points are given for efficiency
-<li>&lsquo;correctness&rsquo; implies that the limits listed above are obeyed;
-  otherwise, the server hangs up and the whole submission does not count
-<li>you do <i>not</i> get any point for efficiency unless all problem instances are solved correctly
-<li>the number of points you get for correctness will be proportional to the number of problem instances you solve correctly; for example, if there will be 1000 problem instances and you solve correctly 537 of them, then you get $537/1000 \times 25 = 13.425$ points
-<li>If all problem instances are solved correctly, then you may get up to 5 points for efficiency, as follows.
-  Let $r_i$ be your raw score for problem instance $i$;
-  let $b_i$ be the best known raw score for problem instance $i$.
-  If there are $n$ problem instances, then your score for efficiency is $5 \sqrt[n]{\prod_{i=1}^n \frac{b_i}{r_i}}$; that is, it is the geometric mean of the relative scores $b_i/r_i$, multiplied by 5.
-<li>There will be a test server that uses $\sim 100$ problem instances, and that displays your score computed as above.
-  <i>This is not your mark.</i>
-  You will have to submit to the submission server, which will use $\gt 1000$ problem instances and does <i>not</i> display your score.
-  The submission server will only be available for a couple of days.
-  (The reason for this setup is to avoid solutions that overfit to the problem instances we happen to use.)
-  The test server, however, will be available for a few weeks.
+<li>21 points are given for correctness; 9 points are given for efficiency.
+<li>
+  You may assume that your submission was successful only if you receive the <b>Scores</b> message from the server.
+  In particular, if you go over the question limit, or if the websocket connection times out, then the submission was <i>not</i> successful and does not count.
+<li>If a solution is wrong, then not only the score for that problem is zero, but efficiency points are also zero.
+  To avoid this situation, you should <tt>"GiveUp"</tt> when you cannot determine the right answer.
+<li>The number of points you get for correctness will be proportional to the number of problem instances you solve correctly; for example, if there will be 1000 problem instances and you solve correctly 537 of them, then you get $537/1000 \times 21 = 11.277$ points.
+<li>
+  You may get efficiency points only if you do not give any wrong answer.
+  Let $r_i$ be your raw score for problem instance $i$; we set $r_i=1000$ if you gave up on problem instance $i$.
+  Let $b_i$ be the best known raw score for problem instance $i$.
+  If there are $n$ problem instances, then your score for efficiency is $9 \sqrt[n]{\prod_{i=1}^n \frac{b_i}{r_i}}$; that is, it is the geometric mean of the relative scores $b_i/r_i$, scaled to 9.
 </ul>
 
+<h2>Test Data</h2>
+
+<p>
+There are two servers: the test server and the submission server.
+Only what you submit to the submission server counts towards your mark.
+However, using the submission server is fraught with dangers:
+
+<ul>
+<li><b>Only your first submission counts.</b>
+  Otherwise, one could (a)&nbsp;identify the bug in one submission and (b)&nbsp;submit again and only ask the minimum number of questions <i>given that you already know where the bug is</i>.
+  The server will, however, accept multiple submissions.
+  The latter ones will be taken into account only if there are special circumstances that are explained in an email.
+<li><b>The first time you connect to the server, you will most likely discover that your code has some bug and the submission will fail.</b>
+<li><b>The submission server is available for 48 hours only.</b>
+</ul>
+
+<p>
+To alleviate these problems, a test server is provided.
+For the test server, only the <i>last</i> submission counts.
+A scoreboard is provided, which updates roughly every minute.
+The test server has 100 tests while the submission server has 1000 tests:
+
+<ul>
+<li>
+  Making a real submission will be 10 times slower than making a test submission.
+  You must remember that you need to be able to finish your real submission by the deadline.
+<li>
+  Your mark will be more precise than what you see on the test server scoreboard.
+<li>
+  You should pay close attention to <i>not</i> overfit your solution to the test server.
+</ul>
+
+<p>
+The test data is generated as follows:
+
+<ol>
+  <li>For each size range out of $(0,10^3), [10^3,10^4), [10^4,10^5), [10^5,10^6)$, several real git repositories are chosen.
+  (Sizes here are number of commits.)
+  Examples:
+    <ul>
+    <li>Overleaf for $(0,10^3)$
+    <li>React for $[10^3,10^4)$
+    <li>Bootstrap for $[10^4,10^5)$
+    <li>Linux for $[10^5,10^6)$
+    </ul>
+  <li> From each repository, a number of problem instances are generated, as follows:
+    <ul>
+    <li>A non-root commit $b$ is chosen uniformly at random as <i>the (hidden) bug</i>.
+    <li>A descendant of $b$ is chosen uniformly at random as <i>the known bad commit</i>.
+    <li>A non-descendant of $b$ is chosen uniformly at random as <i>the known good commit</i>.
+    </ul>
+</ol>
+
+<p>
+In total, the submission server has
+
+<ul>
+<li>500 tests with the number of commits in the range $(0,10^3)$,
+<li>220 tests with the number of commits in the range $[10^3,10^4)$,
+<li>140 tests with the number of commits in the range $[10^4,10^5)$, and
+<li>140 tests with the number of commits in the range $[10^5,10^6)$.
+</ul>
+
+<p>
+The test server has 10 times fewer tests, in each size category.
 
 <h2>References</h2>
 
@@ -188,6 +252,18 @@ Rules:
 <li><a href="https://git-scm.com/docs/git-bisect-lk2009">Git Bisect Internals</a></li>
 <li><a href="https://git-scm.com/book/en/v2/Git-Internals-Git-Objects">Git Objects</a> (commits, trees).
 </ol>
+
+<h2>Changelog</h2>
+
+<ul>
+<li><b>2020-02-13</b>
+  <ul>
+  <li>Drop the requirement that each server message is answered quickly.
+  <li>Added the possibility to give up on a problem.
+  <li>Updated score split to 21 for correctness plus 9 for efficiency.
+  <li>Described how test data is generated.
+  </ul
+</ul>
 
 </body>
 </html>
