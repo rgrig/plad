@@ -62,11 +62,11 @@ Let us consider an example.
 Immediately after connecting, the client authenticates by sending the following message:
 
 <pre>
-  {"User": "rg399" }
+  {"User": ["rg399", "TOKEN"] }
 </pre>
 
 <p>
-(There is no password, but submitting solutions on behalf of somebody else will be considered a breach of academic integrity.)
+Above, <tt>TOKEN</tt> should be replaced by the access token you received by email.
 
 <p>
 Next, the server replies with a problem instance:
@@ -264,6 +264,7 @@ The test server has 10 times fewer tests, in each size category.
   <li>Described how test data is generated.
   </ul>
 <li><b>2020-02-14</b>: The sample solution <i>is</i> correct because it does give up.
+<li><b>2020-02-26</b>: Added access tokens.
 </ul>
 
 </body>
