@@ -69,10 +69,11 @@ Immediately after connecting, the client authenticates by sending the following 
 Above, <tt>TOKEN</tt> should be replaced by the access token you received by email.
 
 <p>
-Next, the server replies with a problem instance:
+Next, the server replies with a repository description (Repo), followed by a problem instance (Instance):
 
 <pre>
-  {"Problem":{"name":"pb0","good":"a","bad":"c","dag":[["a",[]],["b",["a"]],["c",["b"]]]}}
+  {"Repo":{"name":"pb0","instance_count":10,"dag":[["a",[]],["b",["a"]],["c",["b"]]]}}
+  {"Instance":{"good":"a","bad":"c"}}
 </pre>
 
 <p>
@@ -89,7 +90,9 @@ Next, the server replies with a problem instance:
 This is a linear history, because each commit but one has exactly one parent (i.e., there is no branching).
 In general, one can have <i>merge</i> commits, which have multiple parents.
 Cycles, however, will never be present.
-The message also tells us that <tt>a</tt> is good and <tt>c</tt> is bad.
+
+<p>
+The Repo message is followed by an Instance message, which tells us that <tt>a</tt> is good and <tt>c</tt> is bad.
 So, the bug could have been introduced by <tt>b</tt> or <tt>c</tt>; but, which one?
 
 <p>
@@ -116,17 +119,32 @@ At this point, the client figured out that the bug was introduced in version <tt
 </pre>
 
 <p>
-The server now continues by either presenting a new problem instance, or by providing raw scores for all the problem instances seen so far.
+The server now continues in one of three ways:
+<ul>
+<li>With a new Repo message.
+<li>With a new Instance message.
+  (Each Instance message refers to the last Repo message.
+  The Repo message gives the dag; the Instance message gives the known good/bad commits.)
+<li>With a Scores message, if the submission was successful.
+</ul>
+
 In this example, there is no further problem instance to solve, so the server replies with:
 
 <pre>
-  {"Score":{"pb0":2}}
+  {"Score":{"pb0":{"Correct":2}}}
 </pre>
 
 <p>
-If the solution was correct, the raw score is simply the number of questions asked;
-if the solution was incorrect, the raw score will be the special value <tt>null</tt>.
-The <tt>null</tt> score is also given when the client gives up, which can be done by sending the message <tt>"GiveUp"</tt> instead of a question or a solution.
+This message says that the solution was correct, and it was found with 2 questions.
+The other possible outcomes are the following:
+
+<pre>
+  {"Score":{"pb0":"Wrong"}}
+  {"Score":{"pb0":"GaveUp"}}
+</pre>
+
+<p>
+The last outcome is achieved by sending a <tt>"GiveUp"</tt> message instead of a question or a solution.
 
 <p>
 Observe that, from the problem instance, we already know that <tt>c</tt> is bad, so the second question asked by the client is redundant: this problem instance can be solved with just one question!
@@ -137,9 +155,9 @@ Observe that, from the problem instance, we already know that <tt>c</tt> is bad,
 <b>Limits.</b>
 <ul>
 <li>At deadline, the server will hang up.
-<li>The client may ask <i>at most 1000 questions</i>; otherwise, the server hangs up and the submission does not count.
+<li>The client may ask <i>at most 30 questions</i>; otherwise, the server hangs up and the submission does not count.
   To avoid this, the client should send a <tt>"GiveUp"</tt> message.
-<li>The size of the dag (the number of strings occurring at the right of "dag") will be at most 10 million.
+<li>The size of the dag (the number of strings occurring at the right of "dag") will be at most 1 million.
 </ul>
 
 <p>
@@ -147,7 +165,7 @@ Observe that, from the problem instance, we already know that <tt>c</tt> is bad,
 There is more information on <a href="https://moodle.kent.ac.uk/2019/course/view.php?id=5207">Moodle</a>.
 In particular, you can find there what are the deadlines.
 And you can download a simple Java solution and you can download a simple Java solution.
-The simple solution will ask a question for each commit, but give up if the problem instance has more than 1000 commits.
+The simple solution will ask a question for each commit, but give up if the problem instance has more than 30 commits.
 
 <p>
 <b>Clarifications.</b>
@@ -175,9 +193,10 @@ Rules:
 <li>The number of points you get for correctness will be proportional to the number of problem instances you solve correctly; for example, if there will be 1000 problem instances and you solve correctly 537 of them, then you get $537/1000 \times 21 = 11.277$ points.
 <li>
   You may get efficiency points only if you do not give any wrong answer.
-  Let $r_i$ be your raw score for problem instance $i$; we set $r_i=1000$ if you gave up on problem instance $i$.
-  Let $b_i$ be the best known raw score for problem instance $i$.
-  If there are $n$ problem instances, then your score for efficiency is $9 \sqrt[n]{\prod_{i=1}^n \frac{b_i}{r_i}}$; that is, it is the geometric mean of the relative scores $b_i/r_i$, scaled to 9.
+  Let $r_i$ be your raw score for problem instance $i$; we set $r_i=30$ if you gave up on problem instance $i$.
+  The estimated raw score is $\hat r = \frac{1}{n}\sum_{i=1}^{n}r_i$; that is, the arithmetic mean of the raw scores.
+  A raw score of $30$ gives you 0 efficiency points; if you have the lowest raw score of all (last) submissions you get 9 efficiency points.
+  Anything in-between is linearly interpolated.
 </ul>
 
 <h2>Test Data</h2>
@@ -185,47 +204,26 @@ Rules:
 <p>
 There are two servers: the test server and the submission server.
 Only what you submit to the submission server counts towards your mark.
-However, using the submission server is fraught with dangers:
-
-<ul>
-<li><b>Only your first submission counts.</b>
-  Otherwise, one could (a)&nbsp;identify the bug in one submission and (b)&nbsp;submit again and only ask the minimum number of questions <i>given that you already know where the bug is</i>.
-  The server will, however, accept multiple submissions.
-  The latter ones will be taken into account only if there are special circumstances that are explained in an email.
-<li><b>The first time you connect to the server, you will most likely discover that your code has some bug and the submission will fail.</b>
-<li><b>The submission server is available for 48 hours only.</b>
-</ul>
 
 <p>
-To alleviate these problems, a test server is provided.
-For the test server, only the <i>last</i> submission counts.
-A scoreboard is provided, which updates roughly every minute.
-The test server has 100 tests while the submission server has 1000 tests:
+On each connection, you receive <i>the same repositories</i> but <i>different problem instances</i>.
+Instances are generated randomly, as described below.
+The test server has 100 instances, which means that scores may fluctuate.
+The submission server has 10000 instances, which means that scores will be quite stable, but it also means that a real submission will take 100 times the time of a test submission.
+You must remember that you need to be able to finish your real submission by the deadline.
 
-<ul>
-<li>
-  Making a real submission will be 10 times slower than making a test submission.
-  You must remember that you need to be able to finish your real submission by the deadline.
-<li>
-  Your mark will be more precise than what you see on the test server scoreboard.
-<li>
-  You should pay close attention to <i>not</i> overfit your solution to the test server.
-</ul>
+<p>
+The test server has a scoreboard visible by everyone.
+The submission server does not.
 
 <p>
 The test data is generated as follows:
 
 <ol>
-  <li>For each size range out of $(0,10^3), [10^3,10^4), [10^4,10^5), [10^5,10^6)$, several real git repositories are chosen.
-  (Sizes here are number of commits.)
-  Examples:
-    <ul>
-    <li>Overleaf for $(0,10^3)$
-    <li>React for $[10^3,10^4)$
-    <li>Bootstrap for $[10^4,10^5)$
-    <li>Linux for $[10^5,10^6)$
-    </ul>
-  <li> From each repository, a number of problem instances are generated, as follows:
+  <li>For each size range out of $(0,30], (30,10^4), [10^4,10^5), [10^5,10^6)$, several git repositories are chosen.
+  For the small range $(0,30]$, most repositories are synthetic;
+  for the other ranges, all repositories are repositories of real software projects.
+  <li> From each repository, problem instances are generated, as follows:
     <ul>
     <li>A non-root commit $b$ is chosen uniformly at random as <i>the (hidden) bug</i>.
     <li>A descendant of $b$ is chosen uniformly at random as <i>the known bad commit</i>.
@@ -237,14 +235,14 @@ The test data is generated as follows:
 In total, the submission server has
 
 <ul>
-<li>500 tests with the number of commits in the range $(0,10^3)$,
-<li>220 tests with the number of commits in the range $[10^3,10^4)$,
-<li>140 tests with the number of commits in the range $[10^4,10^5)$, and
-<li>140 tests with the number of commits in the range $[10^5,10^6)$.
+<li>5000 tests with the number of commits in the range $(0,30]$,
+<li>2200 tests with the number of commits in the range $(30,10^4)$,
+<li>1400 tests with the number of commits in the range $[10^4,10^5)$, and
+<li>1400 tests with the number of commits in the range $[10^5,10^6)$.
 </ul>
 
 <p>
-The test server has 10 times fewer tests, in each size category.
+The test server has 100 times fewer tests, in each size category.
 
 <h2>References</h2>
 
@@ -265,6 +263,7 @@ The test server has 10 times fewer tests, in each size category.
   </ul>
 <li><b>2020-02-14</b>: The sample solution <i>is</i> correct because it does give up.
 <li><b>2020-02-26</b>: Added access tokens.
+<li><b>2020-03-02</b>: Split Problem messages into Repo/Instance messages. Reduced maximum questions to 30. Updated scoring rules to depend on average number of questions. Tests are different on each connection.
 </ul>
 
 </body>
